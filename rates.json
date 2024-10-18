@@ -1,0 +1,14 @@
+{
+    "rate_per_kva": 499,
+    "rate_per_kWh": 8.12,
+    "wheeling_charge_rate": 0.60,
+    "fac_rate": 0.20,
+    "electricity_duty_rate": 0.075,
+    "tax_on_sale_rate": 0.1904,
+    "tod_charge_0-6": -1.50,
+    "tod_charge_22-24": -1.50,
+    "tod_charge_6-9 & 12-18": 0.00,
+    "tod_charge_9-12": 0.80,
+    "tod_charge_18-22": 1.10
+  }
+  
