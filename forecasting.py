@@ -63,7 +63,7 @@ def prepare_hourly_data(filtered_data):
 
 def sarima_forecast(time_series, order, seasonal_order, n_hours):
     model = SARIMAX(time_series, order=order, seasonal_order=seasonal_order)
-    results = model.fit(disp=True)
+    results = model.fit(disp=False)
     forecast = results.get_forecast(steps=n_hours)
     conf_int = forecast.conf_int()
 
