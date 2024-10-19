@@ -18,11 +18,7 @@ def fetch_data_from_api(api_url, params=None):
         return None
 
 # Load and preprocess data from API
-def load_and_preprocess_data(api_url):
-    data = fetch_data_from_api(api_url)
-    if data is None:
-        return None
-
+def load_and_preprocess_data(data):
     df = pd.DataFrame(data)
     df['DateTime'] = pd.to_datetime(df['Date'] + ' ' + df['Description'], format='%d-%m-%Y %H:%M')
     df = df.sort_values(by='DateTime')
@@ -33,9 +29,22 @@ def load_and_preprocess_data(api_url):
 
     return df
 
-def filter_data_by_date(df, start_date, end_date):
-    mask = (df.index >= start_date) & (df.index <= end_date)
-    return df[mask].copy()
+def filter_data_by_date(processed_data, start_date, end_date):
+    print("Processed Data:", processed_data)  # Debugging line
+    print("Start Date:", start_date, "End Date:", end_date)  # Debugging line
+    
+    # Convert start and end dates to datetime objects
+    start_date_dt = pd.to_datetime(start_date, format='%Y-%m-%d')
+    end_date_dt = pd.to_datetime(end_date, format='%Y-%m-%d')
+
+    # Use the index for filtering since processed_data should have DateTime as index
+    mask = (processed_data.index >= start_date_dt) & (processed_data.index <= end_date_dt)
+    filtered_data = processed_data.loc[mask]
+
+    if filtered_data.empty:
+        return None  # or raise an error indicating no data found
+
+    return filtered_data
 
 def check_stationarity(timeseries, adf_threshold=0.05):
     result = adfuller(timeseries)

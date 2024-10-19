@@ -66,6 +66,7 @@ def forecast():
         if filtered_data is None:
             return jsonify({"error": "No data available for the given date range."}), 404
     except Exception as e:
+        print(f"Date filtering failed: {str(e)}")  # Debugging line
         return jsonify({"error": f"Date filtering failed: {str(e)}"}), 400
 
     # Prepare the hourly data for forecasting
@@ -103,7 +104,6 @@ def forecast():
 @app.route('/api/forecast-data', methods=['GET'])
 def get_forecast_data():
     """Example endpoint to retrieve forecasted data."""
-    # In a real scenario, this would pull from a cached or stored forecast
     return jsonify({"message": "No forecast data available"}), 404
 
 if __name__ == '__main__':
