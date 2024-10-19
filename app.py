@@ -50,6 +50,7 @@ def forecast():
         response = requests.get(api_url)
         response.raise_for_status()  # Check for request errors
         data = response.json()  # Load the data from the API response
+        print("Fetched Data:", data)  # Debugging line
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"Failed to fetch data from API: {str(e)}"}), 500
 
@@ -62,6 +63,8 @@ def forecast():
     # Filter the data by the requested date range
     try:
         filtered_data = filter_data_by_date(processed_data, start_date, end_date)
+        if filtered_data is None:
+            return jsonify({"error": "No data available for the given date range."}), 404
     except Exception as e:
         return jsonify({"error": f"Date filtering failed: {str(e)}"}), 400
 
