@@ -43,7 +43,7 @@ def check_stationarity(timeseries, adf_threshold=0.05):
 
 def prepare_hourly_data(filtered_data):
     filtered_data['kVah_diff'] = filtered_data['kVAh'].diff().abs()
-    hourly_kvah = filtered_data['kVah_diff'].dropna().resample('H').sum()
+    hourly_kvah = filtered_data['kVah_diff'].dropna().resample('h').sum()
     
     if not check_stationarity(hourly_kvah):
         hourly_kvah_diff = hourly_kvah.diff().dropna()
@@ -54,7 +54,7 @@ def prepare_hourly_data(filtered_data):
 
 def sarima_forecast(time_series, order, seasonal_order, n_hours):
     model = SARIMAX(time_series, order=order, seasonal_order=seasonal_order)
-    results = model.fit(disp=False)
+    results = model.fit(disp=True)
     forecast = results.get_forecast(steps=n_hours)
     conf_int = forecast.conf_int()
 
