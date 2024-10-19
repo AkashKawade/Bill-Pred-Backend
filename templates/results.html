@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forecast Results</title>
+</head>
+<body>
+    <h1>Forecast Results</h1>
+
+    <h2>Total Charges: {{ charges.total_charges }} </h2>
+    <ul>
+        <li>Demand Charges: {{ charges.demand_charges }}</li>
+        <li>Wheeling Charges: {{ charges.wheeling_charges }}</li>
+        <li>Energy Charges: {{ charges.energy_charges }}</li>
+        <li>Time-of-Day Charges: {{ charges.tod_charges }}</li>
+        <li>FAC: {{ charges.fac }}</li>
+        <li>Electricity Duty: {{ charges.electricity_duty }}</li>
+        <li>Tax on Sale: {{ charges.tax_on_sale }}</li>
+    </ul>
+
+    <a href="/">Back to Home</a>
+</body>
+</html>
