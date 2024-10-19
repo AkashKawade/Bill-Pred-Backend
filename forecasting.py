@@ -2,7 +2,6 @@ import pandas as pd
 import requests
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.stattools import adfuller
-import matplotlib.pyplot as plt
 
 # Fetch data from API
 def fetch_data_from_api(api_url, params=None):
@@ -69,19 +68,3 @@ def sarima_forecast(time_series, order, seasonal_order, n_hours):
     })
 
     return forecast_df, results
-
-def plot_forecast(original_data, forecast_df, title):
-    plt.figure(figsize=(12, 6))
-    plt.plot(original_data.index, original_data, label='Observed Hourly kVah', alpha=0.5)
-    plt.plot(forecast_df['Date_Hourly'], forecast_df['Forecasted_kVah'], color='red', label='Forecasted Hourly kVah')
-    plt.fill_between(forecast_df['Date_Hourly'], 
-                     forecast_df['Lower_CI_kVah'], 
-                     forecast_df['Upper_CI_kVah'], 
-                     color='pink', alpha=0.5, label='Confidence Interval')
-    plt.title(title)
-    plt.xlabel('Date & Time')
-    plt.ylabel('kVah')
-    plt.legend()
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    

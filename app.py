@@ -1,15 +1,11 @@
 from flask import Flask, render_template, request, jsonify
-from forecasting import load_and_preprocess_data, filter_data_by_date, prepare_hourly_data, sarima_forecast, plot_forecast
+from forecasting import load_and_preprocess_data, filter_data_by_date, prepare_hourly_data, sarima_forecast
 from billing import calculate_energy_bill, get_billing_rates
 import pandas as pd
-import io
-import base64
-import json
-import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
-# Global variable to store the JSON data
+# Global variable to store the JSON data (Consider removing this or use sessions/databases instead)
 json_data = {}
 
 @app.route('/')
@@ -17,13 +13,16 @@ def home():
     api_url = "https://render-ivuy.onrender.com/data"
     data = load_and_preprocess_data(api_url)
     
+    if data is None:
+        return jsonify({"error": "Failed to load input data"}), 500
+    
     input_data = data.head(100).reset_index().to_dict(orient='records')  # Prepare data for HTML rendering
     
     return render_template('index.html', input_data=input_data)
 
 @app.route('/forecast', methods=['POST'])
 def forecast():
-    global json_data  # Access the global variable
+    global json_data  # Access the global variable (consider removing this)
     
     api_url = "https://render-ivuy.onrender.com/data"
 
@@ -71,7 +70,6 @@ def forecast():
     }
 
     return render_template('results.html', charges=charges)
-
 
 @app.route('/api/forecast-data', methods=['GET'])
 def get_forecast_data():
