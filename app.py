@@ -7,6 +7,12 @@ import os
 
 app = Flask(__name__)
 
+# Dictionary to store forecast data for retrieval
+forecast_data_storage = {
+    "actual_hourly_kVAh": [],
+    "forecasted_kVAh": []
+}
+
 @app.route('/')
 def home():
     """Return basic API information."""
@@ -20,7 +26,7 @@ def home():
 
 @app.route('/forecast', methods=['POST'])
 def forecast():
-    """Generate a forecast based on user input, return the forecast and billing details as JSON."""
+    """Generate a forecast based on user input, return billing details as JSON."""
     api_url = "https://render-ivuy.onrender.com/data"  # The input data API
 
     # Get user input from the POST request body
@@ -50,7 +56,6 @@ def forecast():
         response = requests.get(api_url)
         response.raise_for_status()  # Check for request errors
         data = response.json()  # Load the data from the API response
-        print("Fetched Data:", data)  # Debugging line
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"Failed to fetch data from API: {str(e)}"}), 500
 
@@ -86,7 +91,7 @@ def forecast():
     total_hours = len(forecast_df)
     charges = calculate_energy_bill(forecast_df, rates, total_hours)
 
-    # Prepare actual and forecasted data for JSON response
+    # Prepare actual and forecasted data for storage
     actual_hourly_kvah = hourly_kvah.reset_index()
     actual_hourly_kvah['DateTime'] = actual_hourly_kvah['DateTime'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -94,17 +99,34 @@ def forecast():
     forecasted_kvah['DateTime'] = forecasted_kvah['Date_Hourly'].dt.strftime('%Y-%m-%d %H:%M:%S')
     forecasted_kvah = forecasted_kvah.drop(columns=['Date_Hourly']).to_dict(orient='records')
 
-    # Return the forecasted data and billing information as JSON
+    # Store the actual and forecasted data for later retrieval
+    forecast_data_storage["actual_hourly_kVAh"] = actual_hourly_kvah.to_dict(orient='records')
+    forecast_data_storage["forecasted_kVAh"] = forecasted_kvah
+
+    # Return the billing information with detailed charges as JSON
     return jsonify({
-        'actual_hourly_kVAh': actual_hourly_kvah.to_dict(orient='records'),
-        'forecasted_kVAh': forecasted_kvah,
-        'billing_info': charges
+        'billing_info': {
+            'total_charges': charges['total_charges'],
+            'demand_charges': charges['demand_charges'],
+            'wheeling_charges': charges['wheeling_charges'],
+            'energy_charges': charges['energy_charges'],
+            'tod_charges': charges['tod_charges'],
+            'fac': charges['fac'],
+            'electricity_duty': charges['electricity_duty'],
+            'tax_on_sale': charges['tax_on_sale'],
+        }
     })
 
 @app.route('/api/forecast-data', methods=['GET'])
 def get_forecast_data():
-    """Example endpoint to retrieve forecasted data."""
-    return jsonify({"message": "No forecast data available"}), 404
+    """Retrieve the most recent forecast data."""
+    if not forecast_data_storage["actual_hourly_kVAh"] and not forecast_data_storage["forecasted_kVAh"]:
+        return jsonify({"message": "No forecast data available"}), 404
+
+    return jsonify({
+        'actual_hourly_kVAh': forecast_data_storage["actual_hourly_kVAh"],
+        'forecasted_kVAh': forecast_data_storage["forecasted_kVAh"]
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
